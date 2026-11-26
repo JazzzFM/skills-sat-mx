@@ -333,30 +333,40 @@
     }
   },
   "resico_pf_mensual": {
-    "fuente": "LISR art. 113-E (sin reforma para 2026)",
-    "calidad": "primaria",
-    "filas": [
-      [
-        25000.0,
-        0.01
+    "2022-2026": {
+      "ejercicios": [
+        2022,
+        2023,
+        2024,
+        2025,
+        2026
       ],
-      [
-        50000.0,
-        0.011
-      ],
-      [
-        83333.33,
-        0.015
-      ],
-      [
-        208333.33,
-        0.02
-      ],
-      [
-        3500000.0,
-        0.025
+      "fuente": "LISR art. 113-E (adicionado DOF 12-11-2021, sin reforma para 2026)",
+      "calidad": "primaria",
+      "tope_anual": 3500000.0,
+      "filas": [
+        [
+          25000.0,
+          0.01
+        ],
+        [
+          50000.0,
+          0.011
+        ],
+        [
+          83333.33,
+          0.015
+        ],
+        [
+          208333.33,
+          0.02
+        ],
+        [
+          3500000.0,
+          0.025
+        ]
       ]
-    ]
+    }
   },
   "uma_diaria": {
     "valores": {
@@ -418,5 +428,16 @@
     ],
     "fuente": "CFF art. 12: 1 ene, primer lunes de feb, tercer lunes de mar, 1 y 5 de may, 16 sep, tercer lunes de nov, 1 dic cada 6 años y 25 dic; las vacaciones del SAT no recorren declaraciones ni pagos",
     "calidad": "primaria"
+  },
+  "colegiaturas_tope_anual": {
+    "fuente": "Decreto de colegiaturas; SAT, minisitio Deducciones personales, Colegiaturas",
+    "calidad": "primaria",
+    "por_alumno": {
+      "PREESCOLAR": 14200,
+      "PRIMARIA": 12900,
+      "SECUNDARIA": 19900,
+      "PROFESIONAL TECNICO": 17100,
+      "BACHILLERATO O SU EQUIVALENTE": 24500
+    }
   }
 }

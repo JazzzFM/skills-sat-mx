@@ -1,14 +1,22 @@
-# Documentos fiscales personales: nunca versionar
+# Documentos fiscales personales: nunca versionar (también si personal es un enlace simbólico)
 personal/
+/personal
 
-# Llaves de e.firma y certificados
+# Salidas con datos personales que se escriban por error en la raíz
+/*.csv
+
+# Llaves de e.firma, certificados y secretos
 *.key
 *.cer
 *.pfx
+*.p12
+*.pem
 *.req
+.env
 
 # Cachés y configuración local del agente
 __pycache__/
 .pytest_cache/
 .claude/settings.local.json
 .claude/worktrees/
+CLAUDE.local.md

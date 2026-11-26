@@ -49,3 +49,8 @@ def autofactura():
 @pytest.fixture(scope="session")
 def xmls():
     return cargar("fixtures_cfdi", "tests/fixtures/cfdi.py")
+
+
+@pytest.fixture(scope="session")
+def revisor():
+    return cargar("revisar_publicacion", "herramientas/revisar_publicacion.py")

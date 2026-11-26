@@ -29,14 +29,14 @@ Ordenar no destruye. Todo archivo termina en un destino con nombre estándar o a
    - Duplicados por **texto** (el mismo estado descargado dos veces tiene hash distinto) → `_duplicados/`.
    - Idénticos a uno ya ordenado en la referencia → reutiliza ese nombre.
    - `._*` de macOS → `_metadatos_macos/`.
-   - Sin regla → `_por_clasificar/`.
-3. **Decidir con el usuario lo que quedó en `_por_clasificar`.** Lees el contenido, propones nombre con la tabla, y lo pasas en un CSV `original,nuevo` con `--mapa`.
-4. **Ejecutar:** `python3 -I herramientas/documentos.py ordenar --origen <carpeta> --referencia … --mapa … --copia <repo>/personal/estados-cuenta`. No sobrescribe, verifica el md5 de cada copia y escribe `MANIFIESTO.csv` en ambos lados. Las carpetas de referencia de otros proyectos no se tocan.
+   - Sin regla, PDF cifrado, dañado o escaneado → `_por_clasificar/`.
+3. **Decidir con el usuario lo que quedó en `_por_clasificar`.** Lees el contenido (si es escaneo, como imagen), propones nombre con la tabla, y lo pasas en un CSV `original,nuevo` con `--mapa`.
+4. **Ejecutar:** `python3 -I herramientas/documentos.py ordenar --origen <carpeta> --referencia … --mapa … --copia personal/estados-cuenta`. No sobrescribe, verifica el md5 de cada copia y escribe `MANIFIESTO.csv` en ambos lados. Las carpetas de referencia de otros proyectos no se tocan.
 5. **Reportar:** estructura final, conteos (canónicos, duplicados, metadatos, por clasificar) y periodos faltantes (huecos de meses).
 
 ## Depósitos del extranjero
 
-`python3 -I herramientas/documentos.py depositos --pagador "<NOMBRE>" --salida depositos.csv <pdfs…>` lee Banamex ("PAGO RECIBIDO DE … DIVISA:USD IMPORTE: $X/TC $Y") y DólarApp ("Compra USDc + X USD … PAGADOR") sin contar dos veces estados repetidos.
+`python3 -I herramientas/documentos.py depositos --pagador "<NOMBRE>" --salida personal/trabajo/depositos.csv <pdfs…>` lee Banamex ("PAGO RECIBIDO DE … DIVISA:USD IMPORTE: $X/TC $Y") y DólarApp ("Compra USDc + X USD … PAGADOR") sin contar dos veces estados repetidos. Marca con `!!` los PDF que no pudo leer o que no son de esos bancos: esos meses no están en el CSV y hay que capturarlos a mano. La herramienta rechaza `--salida` dentro del repo fuera de `personal/`.
 
 El tipo de cambio que imprime el banco **no** es el fiscal. Para ISR se usa el publicado por Banxico en el DOF el día hábil anterior al cobro (CFF art. 20), columna `pagos` de `herramientas/tipo_cambio_banxico.py`. **REQUIRED SUB-SKILL:** calculando-isr-sueldo-extranjero para el impuesto.
 
@@ -49,5 +49,6 @@ El tipo de cambio que imprime el banco **no** es el fiscal. Para ISR se usa el p
 | Dejar archivos sin clasificar en su carpeta original | `_por_clasificar/` y decidir con el usuario |
 | Fechar por el nombre ("ARQ - 2026-04") o por la descarga | Fecha del contenido según la tabla |
 | Copiar al repo sin revisar `.gitignore` | Paso 1 primero |
+| Dar por completos los depósitos con avisos `!!` | Capturar a mano los meses de PDF no leídos |
 | Usar el TC del banco para el ISR | DOF del día hábil anterior |
 | Mostrar números de cuenta o CLABE | Solo últimos 4 dígitos |

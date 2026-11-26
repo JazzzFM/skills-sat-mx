@@ -1,0 +1,37 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(python3 -I herramientas/cfdi_mx.py *)",
+      "Bash(python3 -I herramientas/fiscal_mx.py *)",
+      "Bash(python3 -I herramientas/revisar_publicacion.py *)",
+      "Bash(pdftotext *)",
+      "Bash(python3 -m pytest *)"
+    ],
+    "ask": [
+      "Bash(git push *)",
+      "Bash(git push)"
+    ],
+    "deny": [
+      "Read(*.key)",
+      "Read(*.cer)",
+      "Read(*.pfx)",
+      "Read(*.p12)",
+      "Read(*.req)",
+      "Bash(git add -f *)",
+      "Bash(git add --force *)"
+    ]
+  },
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 -I \"$CLAUDE_PROJECT_DIR/herramientas/revisar_publicacion.py\" --hook"
+          }
+        ]
+      }
+    ]
+  }
+}

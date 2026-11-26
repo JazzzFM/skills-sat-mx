@@ -1,7 +1,10 @@
+import shutil
 import csv
 import hashlib
 
 import pytest
+
+pytestmark = pytest.mark.skipif(shutil.which("pdftotext") is None, reason="requiere pdftotext (poppler)")
 
 
 def md5(p):

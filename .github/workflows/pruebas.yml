@@ -1,0 +1,38 @@
+name: pruebas
+
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  pruebas:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - {os: ubuntu-latest, python: "3.9"}
+          - {os: ubuntu-latest, python: "3.13"}
+          - {os: macos-latest, python: "3.13"}
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python }}
+      - name: Instalar pdftotext (Linux)
+        if: runner.os == 'Linux'
+        run: sudo apt-get update && sudo apt-get install -y poppler-utils
+      - name: Instalar pdftotext (macOS)
+        if: runner.os == 'macOS'
+        run: brew install poppler
+      - name: Instalar pytest (la 9 ya no soporta Python 3.9)
+        run: python -m pip install "pytest<9"
+      - name: Pruebas
+        run: python -m pytest -q tests/
+      - name: Nada personal en lo publicado
+        run: python -I herramientas/revisar_publicacion.py --todo
+      - name: Ayuda de cada herramienta
+        run: for h in cfdi_mx fiscal_mx autofactura documentos tipo_cambio_banxico revisar_publicacion; do python -I herramientas/$h.py --help > /dev/null; done

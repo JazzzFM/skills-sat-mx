@@ -19,6 +19,11 @@ import subprocess
 import sys
 import unicodedata
 import xml.etree.ElementTree as ET
+import importlib.util
+
+_spec = importlib.util.spec_from_file_location("rutas", pathlib.Path(__file__).resolve().with_name("rutas.py"))
+rutas = importlib.util.module_from_spec(_spec)
+_spec.loader.exec_module(rutas)
 
 MESES_ES = {m: i for i, m in enumerate("enero febrero marzo abril mayo junio julio agosto septiembre octubre "
                                          "noviembre diciembre".split(), 1)}
@@ -57,9 +62,32 @@ CARPETAS_ESPECIALES = ("_duplicados", "_metadatos_macos", "_por_clasificar")
 
 # ---------- utilidades ----------
 
+class PdfIlegible(ValueError):
+    """pdftotext falló o el PDF no trae texto (cifrado, dañado o escaneado)."""
+
+
 def texto_pdf(ruta):
-    r = subprocess.run(["pdftotext", "-layout", str(ruta), "-"], capture_output=True, timeout=120)
-    return r.stdout.decode("utf-8", "replace")
+    try:
+        r = subprocess.run(["pdftotext", "-layout", str(ruta), "-"], capture_output=True, timeout=120)
+    except FileNotFoundError:
+        raise RuntimeError("falta pdftotext: instala poppler-utils (Linux) o poppler (macOS)") from None
+    t = r.stdout.decode("utf-8", "replace")
+    if r.returncode != 0:
+        detalle = r.stderr.decode("utf-8", "replace").strip().splitlines()
+        raise PdfIlegible(f"{pathlib.Path(ruta).name}: pdftotext no pudo leerlo ({detalle[0] if detalle else r.returncode}); "
+                          "¿está cifrado o dañado?")
+    if not t.strip():
+        raise PdfIlegible(f"{pathlib.Path(ruta).name}: no tiene texto (¿es un escaneo?); léelo como imagen")
+    return t
+
+
+def _texto_o_none(ruta, avisos=None):
+    try:
+        return texto_pdf(ruta)
+    except PdfIlegible as e:
+        if avisos is not None:
+            avisos.append(str(e))
+        return None
 
 
 def md5(ruta):
@@ -83,10 +111,15 @@ def slug(s):
 
 def mascara(t):
     """Enmascara RFC de persona física, CURP, CLABE/cuentas/tarjetas y correos."""
-    t = re.sub(r"\b[A-Z]{4}\d{6}[HM][A-Z]{5}[A-Z0-9]\d\b", "[CURP]", t)
-    t = re.sub(r"\b([A-ZÑ&]{4})\d{6}([A-Z0-9]{3})(?=\d*\b)", r"\1******\2", t)  # \d*: folios RFC+consecutivo
+    # Fronteras alfanuméricas en vez de \b: en nombres de archivo "_" y "." separan (estado_0121….pdf).
+    t = re.sub(r"(?<![A-Za-z0-9])[A-Z]{4}\d{6}[HM][A-Z]{5}[A-Z0-9]\d(?![A-Za-z0-9])", "[CURP]", t)
+    t = re.sub(r"(?<![A-Za-z0-9Ñ&])([A-ZÑ&]{4})\d{6}([A-Z0-9]{3})(?=\d*(?![A-Za-z0-9]))", r"\1******\2", t)  # folios RFC+consecutivo
     t = re.sub(r"[\w.+-]+@[\w-]+\.[\w.]+", "[correo]", t)
-    return re.sub(r"\b\d[\d -]{8,}\d\b", lambda m: "####" + re.sub(r"\D", "", m.group())[-4:], t)
+
+    def cuenta(m):
+        digitos = re.sub(r"\D", "", m.group())
+        return "####" + digitos[-4:] if len(digitos) >= 10 else m.group()  # una fecha tiene 8 dígitos
+    return re.sub(r"(?<![A-Za-z0-9])\d[\d -]{8,}\d(?![A-Za-z0-9])", cuenta, t)
 
 
 def _monto(s):
@@ -115,7 +148,9 @@ def clasificar(ruta):
         return {"tipo": "xml", "destino": None}
     if ext != ".pdf":
         return {"tipo": "otro", "destino": None}
-    t = texto_pdf(ruta)
+    t = _texto_o_none(ruta)
+    if t is None:
+        return {"tipo": "pdf_ilegible", "destino": None}
     m = re.search(r"Per[ií]odo del \d+ de \w+(?: del \d{4})? al (\d+) de (\w+) del (\d{4})", t)
     if m and "MiCuenta" in t:
         fecha = f"{m.group(3)}-{MESES_ES[m.group(2).lower()]:02d}-{int(m.group(1)):02d}"
@@ -150,7 +185,8 @@ def planear(origen, referencia=None, mapa=None):
         rel = str(p.relative_to(origen))
         h = md5(p)
         c = clasificar(p)
-        huella = huella_texto(texto_pdf(p)) if p.suffix.lower() == ".pdf" and c["tipo"] != "metadatos_macos" else h
+        texto = _texto_o_none(p) if p.suffix.lower() == ".pdf" and c["tipo"] != "metadatos_macos" else None
+        huella = huella_texto(texto) if texto else h
         if rel in mapa:
             nuevo, motivo = mapa[rel], "mapa manual"
         elif c["tipo"] == "metadatos_macos":
@@ -254,15 +290,23 @@ def _depositos_dolarapp(t, pagador):
     return salida
 
 
-def depositos(pdfs, pagador):
-    """Depósitos del pagador en estados Banamex y DólarApp, sin duplicar estados repetidos."""
+def depositos(pdfs, pagador, avisos=None):
+    """Depósitos del pagador en estados Banamex y DólarApp, sin duplicar estados repetidos.
+
+    Los PDF ilegibles o que no son de esos bancos se reportan en `avisos` (una lista) y no aportan depósitos."""
     vistos, salida = set(), []
     for ruta in pdfs:
-        t = texto_pdf(ruta)
+        t = _texto_o_none(ruta, avisos)
+        if t is None:
+            continue
         h = huella_texto(t)
         if h in vistos:
             continue
         vistos.add(h)
+        reconocido = re.search(r"Per[ií]odo del \d+ de \w+", t) or _fechas_dolarapp(t)
+        if not reconocido and avisos is not None:
+            avisos.append(f"{mascara(pathlib.Path(ruta).name)}: no se reconoció como estado de cuenta Banamex ni "
+                          "DólarApp; revisa a mano si trae depósitos")
         for d in _depositos_banamex(t, pagador) + _depositos_dolarapp(t, pagador):
             salida.append({**d, "fuente": pathlib.Path(ruta).name})
     return sorted(salida, key=lambda d: d["fecha"])
@@ -270,11 +314,13 @@ def depositos(pdfs, pagador):
 
 # ---------- SAT ----------
 
-def visor(pdfs):
+def visor(pdfs, avisos=None):
     """Lee exportaciones del Visor de nómina; ignora descargas repetidas del mismo documento."""
     filas, vistos = [], set()
     for ruta in pdfs:
-        t = texto_pdf(ruta)
+        t = _texto_o_none(ruta, avisos)
+        if t is None:
+            continue
         huella = huella_texto(re.sub(r"\|[^\n]*\|", "", t))  # la cadena original cambia con la fecha de consulta
         if huella in vistos:
             continue
@@ -303,6 +349,8 @@ def visor(pdfs):
             mm = re.match(r"RFC ([A-Z&Ñ]{3}\d{6}[A-Z0-9]{3}) (.+)", l)
             if en_retenedores and mm and "CURP" not in l:
                 patrones.append(mm.group(2).strip())
+        if not ej and avisos is not None:
+            avisos.append(f"{mascara(pathlib.Path(ruta).name)}: no parece una exportación del Visor de nómina")
         filas.append({"ejercicio": int(ej.group(1)) if ej else None,
                       "periodo": f"{per.group(1)}-{per.group(2)}" if per else "",
                       "total": _monto(total.group(1)) if total else None, "exento": exento,
@@ -347,7 +395,20 @@ def main(argv=None):
     s = sub.add_parser("csf")
     s.add_argument("pdf")
     a = p.parse_args(argv)
+    try:
+        _main(a)
+    except (PdfIlegible, RuntimeError, ValueError) as e:
+        print(f"!! {e}", file=sys.stderr)
+        sys.exit(1)
 
+
+def _fmt(x):
+    return "n/d" if x is None else f"{x:,.2f}"
+
+
+def _main(a):
+    if a.cmd in ("depositos", "visor"):
+        rutas.exigir_fuera_del_repo_o_en_personal(a.salida, "la salida")
     if a.cmd in ("planear", "ordenar"):
         mapa = {}
         if a.mapa:
@@ -363,27 +424,36 @@ def main(argv=None):
         else:
             print("Simulación: nada se movió. Usa 'ordenar' para ejecutar.")
     elif a.cmd == "depositos":
-        deps = depositos(a.pdfs, a.pagador)
+        avisos = []
+        deps = depositos(a.pdfs, a.pagador, avisos)
         with open(a.salida, "w", newline="", encoding="utf-8") as f:
             w = csv.DictWriter(f, fieldnames=["fecha", "usd", "mxn", "cuenta", "tc_banco", "mxn_banco", "comision_usd", "fuente", "nota"])
             w.writeheader()
             for d in deps:
-                w.writerow({**d, "mxn": "", "nota": ""})
+                w.writerow({**d, "mxn": "", "nota": "", "fuente": mascara(d["fuente"])})
         for d in deps:
-            print(f"{d['fecha']} {d['usd']:,.2f} USD ({d['cuenta']}; {d['fuente']})")
+            print(f"{d['fecha']} {_fmt(d['usd'])} USD ({d['cuenta']}; {mascara(d['fuente'])})")
         print(f"{len(deps)} depósitos -> {a.salida}")
+        for x in avisos:
+            print(f"!! {x}")
     elif a.cmd == "visor":
-        filas = visor(a.pdfs)
+        avisos = []
+        filas = visor(a.pdfs, avisos)
         with open(a.salida, "w", newline="", encoding="utf-8") as f:
             w = csv.DictWriter(f, fieldnames=["ejercicio", "periodo", "total", "exento", "isr_retenido", "patrones", "fuente"])
             w.writeheader()
             for r in filas:
                 w.writerow({**r, "patrones": " | ".join(r["patrones"]), "fuente": mascara(r["fuente"])})
         for r in filas:
-            print(f"{r['ejercicio']} {r['periodo']}: total {r['total']:,.2f}; exento {r['exento']:,.2f}; "
-                  f"ISR {r['isr_retenido']:,.2f}; {len(r['patrones'])} patrón(es)")
+            print(f"{r['ejercicio']} {r['periodo']}: total {_fmt(r['total'])}; exento {_fmt(r['exento'])}; "
+                  f"ISR {_fmt(r['isr_retenido'])}; {len(r['patrones'])} patrón(es)")
+        for x in avisos:
+            print(f"!! {x}")
     elif a.cmd == "csf":
-        print(csf(a.pdf))
+        r = csf(a.pdf)
+        print(r)
+        if not r["rfc"]:
+            print("!! No se encontró el RFC: ¿es una Constancia de Situación Fiscal?")
 
 
 if __name__ == "__main__":

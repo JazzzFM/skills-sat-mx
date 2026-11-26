@@ -1,0 +1,4 @@
+#!/bin/sh
+# Bloquea commits con documentos personales, llaves o RFC/CURP/CLABE de personas físicas.
+# Actívalo una vez por clon: git config core.hooksPath .githooks
+exec python3 -I "$(git rev-parse --show-toplevel)/herramientas/revisar_publicacion.py" --staged

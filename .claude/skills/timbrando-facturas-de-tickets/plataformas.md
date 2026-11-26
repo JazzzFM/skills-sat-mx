@@ -7,7 +7,7 @@ Muchos comercios usan la misma plataforma con otro nombre o subdominio. Identifi
 - La captura de pantalla falla a ratos ("Cannot attach", timeout). Usa `read_page`, `find` o `get_page_text` para leer la página.
 - `form_input` sobre el ref del campo es más confiable que teclear por coordenadas, que cae en el campo equivocado.
 - Las ventanas emergentes (`window.open`) a veces no aparecen: lee la URL del botón y navega directo.
-- `file_upload` solo acepta archivos del directorio de trabajo de la sesión: copia ahí la Constancia si un portal la pide.
+- `file_upload` solo acepta archivos del directorio de trabajo de la sesión. Si el usuario aceptó subir un documento, usa la copia que está en `personal/` (dentro del repo y fuera de git), nunca una copia en otra carpeta.
 - Chrome bloquea descargas disparadas con `.click()` programático. `window.location.href = <href>` desde `javascript_tool` sí descarga, a la carpeta de descargas del usuario.
 - Los anuncios a pantalla completa que tapan un formulario suelen quitarse recargando la URL del formulario.
 
@@ -60,7 +60,7 @@ Tiendas cuyo ticket trae número de venta y token.
 
 ## Formularios que piden la Constancia y entregan por correo
 
-- Piden la Constancia de Situación Fiscal reciente (algunos, con menos de tres meses) en PDF o imagen.
+- Piden la Constancia de Situación Fiscal reciente (algunos, con menos de tres meses) en PDF o imagen. Condicionar la factura a ella es infracción (CFF art. 83, fr. IX): ofrece primero la Cédula y sube la Constancia solo con el "sí" del usuario para ese portal.
 - La forma de pago es obligatoria aunque el ticket no la imprima: pregúntala, no la deduzcas.
 - No timbran al momento: la factura llega por correo en uno o dos días hábiles. Deja la fila "Pendiente" con nota "solicitada".
 - Para pedir solo nombre, RFC, régimen y CP, la **Cédula de datos fiscales** del SAT expone menos datos que la Constancia.

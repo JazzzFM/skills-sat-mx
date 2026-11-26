@@ -26,9 +26,9 @@ def test_registrar_archivar_y_marcar_facturado(autofactura, xmls, tmp_path):
         (xmls.RFC_PF, xmls.NOMBRE_PF, xmls.CP_PF, "626", "G03"), serie="SF", folio="61", forma="04"))
     pdf = tmp_path / "descarga.pdf"
     pdf.write_bytes(b"%PDF")
-    x, p, aviso = autofactura.archivar(cfg, xml, pdf, "cafe-ejemplo")
+    x, p, avisos = autofactura.archivar(cfg, xml, pdf, "cafe-ejemplo")
     assert x.parent.name == "2026-11-03" and x.name == "cafe-ejemplo_95.98_SF61.xml" and p.suffix == ".pdf"
-    assert aviso == ""
+    assert avisos == []
     readme = (cfg["_carpeta"] / "2026-11" / "README.md").read_text(encoding="utf-8")
     assert "| 2026-11-03 | cafe-ejemplo | $96.00 | Facturado | DDDDDDDD-0000-0000-0000-000000000001 | 04 |" in readme
     assert "redondeo del portal" in readme
@@ -39,8 +39,8 @@ def test_archivar_sin_ticket_usa_fecha_del_xml(autofactura, xmls, tmp_path):
     xml = xmls.escribir(tmp_path / "f.xml", xmls.comprobante(
         "DDDDDDDD-0000-0000-0000-000000000002", "I", "2026-11-09", 500, 580, (xmls.RFC_GAS, "GAS SA", "601"),
         (xmls.RFC_PF, xmls.NOMBRE_PF, xmls.CP_PF, "626", "G03")))
-    x, _, aviso = autofactura.archivar(cfg, xml, None, "gasolinera-ejemplo")
-    assert x.parent.name == "2026-11-09" and "sin ticket" in aviso
+    x, _, avisos = autofactura.archivar(cfg, xml, None, "gasolinera-ejemplo")
+    assert x.parent.name == "2026-11-09" and any("sin ticket" in a for a in avisos)
 
 
 def test_vigencias_ordena_por_urgencia(autofactura, xmls, tmp_path):
@@ -49,9 +49,9 @@ def test_vigencias_ordena_por_urgencia(autofactura, xmls, tmp_path):
                                            ("2026-11-24", "Café Ejemplo"), ("2026-11-10", "tienda-nueva"),
                                            ("2026-11-11", "app-viajes")]):
         t = tmp_path / f"t{i}.pdf"
-        t.write_bytes(b"%PDF")
+        t.write_bytes(b"%PDF" + bytes([i]))
         autofactura.registrar(cfg, t, fecha, comercio, 100 + i)
-    filas = autofactura.vigencias(cfg, "2026-11", date(2026, 11, 26))
+    filas = autofactura.vigencias(cfg, date(2026, 11, 26), "2026-11")
     estados = [(f[3], f[1]) for f in filas]
     assert estados == [("cafe-ejemplo", "VENCIDO hace 1 días"), ("cafe-ejemplo", "quedan 3 días"),
                        ("gasolinera-ejemplo", "quedan 4 días"), ("app-viajes", "SIN PLAZO DURO"),
@@ -62,6 +62,6 @@ def test_no_sobrescribe(autofactura, xmls, tmp_path):
     cfg = _cfg(autofactura, tmp_path, xmls)
     for i in range(2):
         t = tmp_path / f"t{i}.pdf"
-        t.write_bytes(b"%PDF")
+        t.write_bytes(b"%PDF" + bytes([i]))  # dos tickets distintos del mismo importe
         d = autofactura.registrar(cfg, t, "2026-11-05", "gasolinera-ejemplo", 500)
     assert d.name == "gasolinera-ejemplo_500.00_ticket-2.pdf"

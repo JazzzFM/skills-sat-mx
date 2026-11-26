@@ -41,13 +41,13 @@ def test_resico_ppd_sin_complemento_y_cancelados(cfdi, xmls, tmp_path):
     cfdis, _ = _octubre(cfdi, xmls, tmp_path)
     sin_rep = [c for c in cfdis if c["tipo"] != "P"]
     meses, sin_comp, _ = cfdi.resico(sin_rep, xmls.RFC_PF, excluir=["AAAAAAAA-0000-0000-0000-000000000004"])
-    assert [c["uuid"][-3:] for c in sin_comp] == ["002"]
+    assert [p["uuid"][-3:] for p in sin_comp] == ["002"]
     assert meses["2026-10"]["ingresos"] == pytest.approx(30000)  # sin pago ni nota de crédito excluida
 
 
 @pytest.mark.parametrize("ingreso,tasa", [(25000, 0.01), (25000.01, 0.011), (83333.33, 0.015), (208333.34, 0.025)])
 def test_tasa_resico_por_tramo(cfdi, ingreso, tasa):
-    assert cfdi.tasa_resico(ingreso) == pytest.approx(tasa)
+    assert cfdi.tasa_resico(ingreso, 2026) == pytest.approx(tasa)
 
 
 def test_limite_complemento_dia_5_natural(cfdi):
@@ -65,10 +65,10 @@ def test_verificar_receptor(cfdi, xmls, tmp_path):
     cfdis, _ = _octubre(cfdi, xmls, tmp_path)
     laptop = next(c for c in cfdis if c["uuid"].endswith("005"))
     esperado = {"rfc": xmls.RFC_PF, "nombre": "Ana López Pérez", "cp": xmls.CP_PF, "regimen": "626", "uso": "I04"}
-    problemas = cfdi.verificar(laptop, esperado)
-    assert problemas == ["nombre difiere solo en acentos o espacios: 'ANA LOPEZ PEREZ'"]
-    assert any("régimen" in p for p in cfdi.verificar(laptop, {**esperado, "nombre": "", "regimen": "605"}))
-    assert any("RFC" in p for p in cfdi.verificar(laptop, {**esperado, "rfc": "XAXX010101000"}))
+    problemas, notas = cfdi.verificar(laptop, esperado)
+    assert problemas == [] and notas == ["el nombre solo difiere en mayúsculas, acentos o espacios: 'ANA LOPEZ PEREZ'"]
+    assert any("régimen" in p for p in cfdi.verificar(laptop, {**esperado, "nombre": "", "regimen": "605"})[0])
+    assert any("RFC" in p for p in cfdi.verificar(laptop, {**esperado, "rfc": "XAXX010101000"})[0])
 
 
 def test_mascara_rfc(cfdi):
@@ -83,11 +83,11 @@ def test_nomina_suma_por_patron_y_tope_de_aguinaldo(cfdi, xmls, tmp_path):
             f"BBBBBBBB-0000-0000-0000-00000000000{i}", "N", fecha, 20000 + ag, 17000, (xmls.RFC_PATRON, "PATRON SA", "601"),
             rec, metodo="PUE", forma="99", complemento=xmls.nomina(fecha, 20000, ag, 3000, aguinaldo_exento=ag)))
     cfdis, _ = cfdi.leer_varios(sorted(tmp_path.glob("n*.xml")))
-    filas, alertas = cfdi.nomina(cfdis)
+    filas, _, alertas = cfdi.nomina(cfdis)
     f = filas[("2026", xmls.RFC_PATRON, "PATRON SA")]
     assert f["recibos"] == 2 and f["gravado"] == pytest.approx(40000) and f["isr"] == pytest.approx(6000)
     assert f["aguinaldo_exento"] == pytest.approx(4000)   # rebasa 30 UMA 2026 = 3,519.30
-    assert not alertas
+    assert any("aguinaldo" in x and "rebasa" in x for x in alertas)
 
 
 def test_deducciones_detecta_regimen_efectivo_y_ejercicio(cfdi, xmls, tmp_path):
