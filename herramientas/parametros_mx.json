@@ -1,0 +1,422 @@
+{
+  "_nota": "Cada tabla lleva fuente y calidad: primaria (DOF/SAT/INEGI leída), secundaria (despacho o medio) o memoria (verificar). Filas: [limite_inferior, cuota_fija, tasa_sobre_excedente]. Revisar cada diciembre (RMF y Anexo 8 nuevos), enero (UMA) y abril (guías de la anual). Corte de la investigación: 26-oct-2026; los valores de 2027 se publican en diciembre de 2026 y enero de 2027.",
+  "tarifa_mensual": {
+    "2023-2025": {
+      "ejercicios": [
+        2023,
+        2024,
+        2025
+      ],
+      "fuente": "Anexo 8 RMF 2023 (art. 96 LISR); mismo valor 2023-2025",
+      "calidad": "primer y último renglón secundaria (El Contribuyente); intermedios de memoria, validados por consistencia",
+      "filas": [
+        [
+          0.01,
+          0.0,
+          0.0192
+        ],
+        [
+          746.05,
+          14.32,
+          0.064
+        ],
+        [
+          6332.06,
+          371.83,
+          0.1088
+        ],
+        [
+          11128.02,
+          893.63,
+          0.16
+        ],
+        [
+          12935.83,
+          1182.88,
+          0.1792
+        ],
+        [
+          15487.72,
+          1640.18,
+          0.2136
+        ],
+        [
+          31236.5,
+          5004.12,
+          0.2352
+        ],
+        [
+          49233.01,
+          9236.89,
+          0.3
+        ],
+        [
+          93993.91,
+          22665.17,
+          0.32
+        ],
+        [
+          125325.21,
+          32691.18,
+          0.34
+        ],
+        [
+          375975.62,
+          117912.32,
+          0.35
+        ]
+      ]
+    },
+    "2026": {
+      "ejercicios": [
+        2026
+      ],
+      "fuente": "Anexo 8 RMF 2026, apartado B, fr. V (DOF 28-12-2025)",
+      "calidad": "primaria",
+      "filas": [
+        [
+          0.01,
+          0.0,
+          0.0192
+        ],
+        [
+          844.6,
+          16.22,
+          0.064
+        ],
+        [
+          7168.52,
+          420.95,
+          0.1088
+        ],
+        [
+          12598.03,
+          1011.68,
+          0.16
+        ],
+        [
+          14644.65,
+          1339.14,
+          0.1792
+        ],
+        [
+          17533.65,
+          1856.84,
+          0.2136
+        ],
+        [
+          35362.84,
+          5665.16,
+          0.2352
+        ],
+        [
+          55736.69,
+          10457.09,
+          0.3
+        ],
+        [
+          106410.51,
+          25659.23,
+          0.32
+        ],
+        [
+          141880.67,
+          37009.69,
+          0.34
+        ],
+        [
+          425642.0,
+          133488.54,
+          0.35
+        ]
+      ]
+    }
+  },
+  "tarifa_anual": {
+    "2018-2022": {
+      "ejercicios": [
+        2018,
+        2019,
+        2020,
+        2021,
+        2022
+      ],
+      "fuente": "Anexo 8 RMF 2018 (art. 152 LISR)",
+      "calidad": "memoria; validar contra el Anexo 8 de la RMF 2018 publicado en el DOF",
+      "filas": [
+        [
+          0.01,
+          0.0,
+          0.0192
+        ],
+        [
+          7735.01,
+          148.51,
+          0.064
+        ],
+        [
+          65651.08,
+          3855.14,
+          0.1088
+        ],
+        [
+          115375.91,
+          9265.2,
+          0.16
+        ],
+        [
+          134119.42,
+          12264.16,
+          0.1792
+        ],
+        [
+          160577.66,
+          17005.47,
+          0.2136
+        ],
+        [
+          323862.01,
+          51883.01,
+          0.2352
+        ],
+        [
+          510451.01,
+          95768.74,
+          0.3
+        ],
+        [
+          974535.04,
+          234993.95,
+          0.32
+        ],
+        [
+          1299380.05,
+          338944.34,
+          0.34
+        ],
+        [
+          3898140.13,
+          1222522.76,
+          0.35
+        ]
+      ]
+    },
+    "2023-2025": {
+      "ejercicios": [
+        2023,
+        2024,
+        2025
+      ],
+      "fuente": "Anexo 8 RMF 2026, apartado C, fr. I (ejercicio 2025, igual a 2023 y 2024)",
+      "calidad": "primaria",
+      "filas": [
+        [
+          0.01,
+          0.0,
+          0.0192
+        ],
+        [
+          8952.5,
+          171.88,
+          0.064
+        ],
+        [
+          75984.56,
+          4461.94,
+          0.1088
+        ],
+        [
+          133536.08,
+          10723.55,
+          0.16
+        ],
+        [
+          155229.81,
+          14194.54,
+          0.1792
+        ],
+        [
+          185852.58,
+          19682.13,
+          0.2136
+        ],
+        [
+          374837.89,
+          60049.4,
+          0.2352
+        ],
+        [
+          590796.0,
+          110842.74,
+          0.3
+        ],
+        [
+          1127926.85,
+          271981.99,
+          0.32
+        ],
+        [
+          1503902.47,
+          392294.17,
+          0.34
+        ],
+        [
+          4511707.38,
+          1414947.85,
+          0.35
+        ]
+      ]
+    },
+    "2026": {
+      "ejercicios": [
+        2026
+      ],
+      "fuente": "Anexo 8 RMF 2026, apartado C, fr. II",
+      "calidad": "primaria",
+      "filas": [
+        [
+          0.01,
+          0.0,
+          0.0192
+        ],
+        [
+          10135.12,
+          194.59,
+          0.064
+        ],
+        [
+          86022.12,
+          5051.37,
+          0.1088
+        ],
+        [
+          151176.2,
+          12140.13,
+          0.16
+        ],
+        [
+          175735.67,
+          16069.64,
+          0.1792
+        ],
+        [
+          210403.7,
+          22282.14,
+          0.2136
+        ],
+        [
+          424353.98,
+          67981.92,
+          0.2352
+        ],
+        [
+          668840.15,
+          125485.07,
+          0.3
+        ],
+        [
+          1276925.99,
+          307910.81,
+          0.32
+        ],
+        [
+          1702567.98,
+          444116.23,
+          0.34
+        ],
+        [
+          5107703.93,
+          1601862.46,
+          0.35
+        ]
+      ]
+    }
+  },
+  "resico_pf_mensual": {
+    "fuente": "LISR art. 113-E (sin reforma para 2026)",
+    "calidad": "primaria",
+    "filas": [
+      [
+        25000.0,
+        0.01
+      ],
+      [
+        50000.0,
+        0.011
+      ],
+      [
+        83333.33,
+        0.015
+      ],
+      [
+        208333.33,
+        0.02
+      ],
+      [
+        3500000.0,
+        0.025
+      ]
+    ]
+  },
+  "uma_diaria": {
+    "valores": {
+      "2021": 89.62,
+      "2022": 96.22,
+      "2023": 103.74,
+      "2024": 108.57,
+      "2025": 113.14,
+      "2026": 117.31
+    },
+    "vigencia": "1 de febrero al 31 de enero siguiente (enero usa la UMA del año anterior)",
+    "fuente": "INEGI",
+    "calidad": "2025 y 2026 primaria; 2021-2024 memoria"
+  },
+  "recargos_mora_mensual": {
+    "valores": {
+      "2025": 0.0147,
+      "2026": 0.0207
+    },
+    "fuente": "LIF de cada año (tasa de prórroga) x 1.5 por CFF art. 21; 2026: LIF 2026 art. 11 (1.38%)",
+    "calidad": "2026 primaria; 2025 secundaria (IDC)",
+    "anio_sin_dato": "se usa el último año disponible y se marca"
+  },
+  "recargos_plazos_mensual": {
+    "2026": {
+      "hasta_12": 0.0142,
+      "hasta_24": 0.0163,
+      "mas_de_24_o_diferido": 0.0197
+    },
+    "fuente": "LIF 2026 art. 11, fr. II (incluyen actualización)",
+    "calidad": "primaria"
+  },
+  "dias_inhabiles": {
+    "fechas": [
+      "2025-01-01",
+      "2025-02-03",
+      "2025-03-17",
+      "2025-05-01",
+      "2025-05-05",
+      "2025-09-16",
+      "2025-11-17",
+      "2025-12-25",
+      "2026-01-01",
+      "2026-02-02",
+      "2026-03-16",
+      "2026-05-01",
+      "2026-05-05",
+      "2026-09-16",
+      "2026-11-16",
+      "2026-12-25",
+      "2027-01-01",
+      "2027-02-01",
+      "2027-03-15",
+      "2027-05-01",
+      "2027-05-05",
+      "2027-09-16",
+      "2027-11-15",
+      "2027-12-25"
+    ],
+    "fuente": "CFF art. 12: 1 ene, primer lunes de feb, tercer lunes de mar, 1 y 5 de may, 16 sep, tercer lunes de nov, 1 dic cada 6 años y 25 dic; las vacaciones del SAT no recorren declaraciones ni pagos",
+    "calidad": "primaria"
+  }
+}

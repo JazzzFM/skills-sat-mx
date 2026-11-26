@@ -1,0 +1,21 @@
+{
+  "_instrucciones": "Copia este archivo a personal/autofactura.json (ignorado por git) y reemplaza los datos con los de tu Constancia de Situación Fiscal. La carpeta es relativa a este archivo.",
+  "carpeta": "facturas",
+  "receptor": {
+    "rfc": "LOPA900101AB1",
+    "nombre": "ANA LOPEZ PEREZ",
+    "cp": "06700",
+    "correo": "tu-correo@ejemplo.com"
+  },
+  "perfiles": {
+    "actividad": {"regimen": "626", "uso": "G03", "_nota": "gastos de tu actividad RESICO"},
+    "inversion": {"regimen": "626", "uso": "I04", "_nota": "equipo de cómputo para la actividad"},
+    "medicos": {"regimen": "605", "uso": "D01", "_nota": "honorarios médicos, dentales y hospitalarios"},
+    "sin-efectos": {"regimen": "605", "uso": "S01", "_nota": "solo sueldo y gasto no deducible"}
+  },
+  "ventanas": {
+    "cafeteria-ejemplo": "5d",
+    "gasolinera-ejemplo": "mes",
+    "app-de-viajes": "sin-plazo"
+  }
+}

@@ -1,0 +1,14 @@
+# Documentos fiscales personales: nunca versionar
+personal/
+
+# Llaves de e.firma y certificados
+*.key
+*.cer
+*.pfx
+*.req
+
+# Cachés y configuración local del agente
+__pycache__/
+.pytest_cache/
+.claude/settings.local.json
+.claude/worktrees/
